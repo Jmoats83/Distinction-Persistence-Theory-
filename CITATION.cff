@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it."
+title: "Distinction–Persistence Theory (DPT)"
+type: software
+authors:
+  - family-names: "Moats"
+    given-names: "Joshua D."
+repository-code: "https://github.com/<your-username>/distinction-persistence-theory"
+abstract: "A constraint-based framework for studying what structures remain identifiable under sustained, legitimate pressure."
+license: "MIT"
+date-released: 2026-02-02
+version: 0.1.0
