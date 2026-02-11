@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>DPT Physics & Reality Lab</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; }
+    textarea, input, select { width: 100%; margin: 0.4rem 0; }
+    .card { border: 1px solid #ccc; padding: 1rem; margin: 1rem 0; border-radius: 8px; }
+    pre { background: #f8f8f8; padding: 1rem; overflow: auto; }
+  </style>
+</head>
+<body>
+<h1>DPT Physics & Reality Lab</h1>
+<label for="mode">Mode</label>
+<select id="mode">
+  <option>Physics Claim Check (QM/SR/GR)</option>
+  <option>Experiment Designer</option>
+  <option>Data Ingest + Compare (CSV/logs)</option>
+  <option>Reference Library (papers, standards, docs)</option>
+  <option>Clock → Physics Bridge</option>
+</select>
+
+<div class="card">
+  <h2>Physics Claim Check</h2>
+  <input id="claimQuery" value="Does SR predict time dilation for GPS satellites?" />
+  <button onclick="runClaimCheck()">Run Claim Check</button>
+  <pre id="claimOut"></pre>
+</div>
+
+<div class="card">
+  <h2>Data Ingest + Compare</h2>
+  <input type="file" id="csvFile" />
+  <button onclick="uploadCsv()">Ingest Clock CSV</button>
+  <pre id="ingestOut"></pre>
+</div>
+
+<div class="card">
+  <h2>Experiment Designer (SR/timekeeping templates)</h2>
+  <button onclick="loadTemplates()">Load Templates</button>
+  <pre id="templateOut"></pre>
+</div>
+
+<div class="card">
+  <h2>Reference Library</h2>
+  <input id="refTitle" placeholder="title" />
+  <input id="refUrl" placeholder="url" />
+  <input id="refTags" placeholder="tags comma-separated" />
+  <textarea id="refNotes" placeholder="notes"></textarea>
+  <button onclick="saveRef()">Save Reference</button>
+  <button onclick="listRefs()">List References</button>
+  <pre id="refOut"></pre>
+</div>
+
+<div class="card">
+  <h2>Clock → Physics Bridge</h2>
+  <button onclick="loadBridge()">Load Bridge Panel</button>
+  <pre id="bridgeOut"></pre>
+</div>
+
+<script>
+async function runClaimCheck() {
+  const query = document.getElementById('claimQuery').value;
+  const res = await fetch('/api/physics/claim_check', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({query})
+  });
+  document.getElementById('claimOut').textContent = JSON.stringify(await res.json(), null, 2);
+}
+
+async function uploadCsv() {
+  const file = document.getElementById('csvFile').files[0];
+  if (!file) return;
+  const form = new FormData();
+  form.append('file', file);
+  const res = await fetch('/api/physics/ingest_log', { method:'POST', body: form });
+  document.getElementById('ingestOut').textContent = JSON.stringify(await res.json(), null, 2);
+}
+
+async function loadTemplates() {
+  const res = await fetch('/api/physics/experiment_templates?domain=SR');
+  document.getElementById('templateOut').textContent = JSON.stringify(await res.json(), null, 2);
+}
+
+async function saveRef() {
+  const payload = {
+    title: document.getElementById('refTitle').value,
+    url: document.getElementById('refUrl').value,
+    tags: document.getElementById('refTags').value.split(',').map(s => s.trim()).filter(Boolean),
+    notes: document.getElementById('refNotes').value,
+    dpt_notes: ''
+  };
+  const res = await fetch('/api/physics/reference', {
+    method:'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
+  });
+  document.getElementById('refOut').textContent = JSON.stringify(await res.json(), null, 2);
+}
+
+async function listRefs() {
+  const res = await fetch('/api/physics/reference');
+  document.getElementById('refOut').textContent = JSON.stringify(await res.json(), null, 2);
+}
+
+async function loadBridge() {
+  const res = await fetch('/api/physics/clock_bridge');
+  document.getElementById('bridgeOut').textContent = JSON.stringify(await res.json(), null, 2);
+}
+</script>
+</body>
+</html>
